@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a1a">
+<title>TELEGUIDA — Prima Serata</title>
+
+<!-- PWA Manifest inline -->
+<link rel="manifest" href='data:application/manifest+json,{
+  "name": "Teleguida Prima Serata",
+  "short_name": "Teleguida",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#0a0a1a",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22192%22 height=%22192%22%3E%3Crect width=%22192%22 height=%22192%22 fill=%22%230a0a1a%22/%3E%3Ctext x=%2296%22 y=%22120%22 font-size=%22110%22 text-anchor=%22middle%22 fill=%22%23ffd000%22 font-family=%22monospace%22 font-weight=%22bold%22%3ETV%3C/text%3E%3C/svg%3E", "sizes": "192x192", "type": "image/svg+xml" },
+    { "src": "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22512%22 height=%22512%22%3E%3Crect width=%22512%22 height=%22512%22 fill=%22%230a0a1a%22/%3E%3Ctext x=%22256%22 y=%22320%22 font-size=%22300%22 text-anchor=%22middle%22 fill=%22%23ffd000%22 font-family=%22monospace%22 font-weight=%22bold%22%3ETV%3C/text%3E%3C/svg%3E", "sizes": "512x512", "type": "image/svg+xml" }
+  ]
+}'>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#0a0a1a;
+    --panel:#10102a;
+    --line:#2a2a55;
+    --yellow:#ffd000;
+    --cyan:#00e0e0;
+    --green:#3ff03f;
+    --magenta:#ff4fd8;
+    --white:#e8e8ff;
+    --dim:#7a7ab0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--bg);}
+  body{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--white);
+    min-height:100vh;
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+    overflow-x:hidden;
+  }
+  /* CRT scanline + flicker overlay */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+    background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.18) 3px,rgba(0,0,0,0) 4px);
+    mix-blend-mode:multiply;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;
+    background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.5) 100%);
+  }
+
+  .wrap{max-width:680px;margin:0 auto;padding:14px;}
+
+  header{
+    border:2px solid var(--cyan);
+    background:linear-gradient(180deg,#13133a,#0c0c24);
+    padding:12px 14px;
+    margin-bottom:14px;
+    position:relative;
+  }
+  .logo{
+    font-family:'VT323',monospace;
+    font-size:46px;line-height:.9;
+    color:var(--yellow);
+    text-shadow:0 0 8px rgba(255,208,0,.5);
+    letter-spacing:2px;
+  }
+  .logo span{color:var(--cyan);}
+  .subline{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:6px;font-size:13px;color:var(--dim);flex-wrap:wrap;gap:6px;
+  }
+  .pag{color:var(--green);}
+  #clock{color:var(--magenta);font-weight:600;}
+
+  .band{
+    text-align:center;font-family:'VT323',monospace;font-size:24px;
+    color:var(--cyan);border-top:1px dashed var(--line);
+    border-bottom:1px dashed var(--line);padding:6px;margin:12px 0;
+    letter-spacing:3px;
+  }
+
+  .chan{
+    border:1px solid var(--line);
+    background:var(--panel);
+    margin-bottom:12px;
+    opacity:0;transform:translateY(8px);
+    animation:rise .4s ease forwards;
+  }
+  @keyframes rise{to{opacity:1;transform:none;}}
+  .chan-head{
+    display:flex;align-items:center;gap:10px;
+    padding:8px 12px;background:#16163c;border-bottom:1px solid var(--line);
+    cursor:pointer;user-select:none;
+  }
+  .num{
+    font-family:'VT323',monospace;font-size:28px;color:var(--bg);
+    background:var(--yellow);min-width:38px;text-align:center;
+    border-radius:3px;line-height:1.1;padding:0 4px;
+  }
+  .chan-name{font-weight:600;font-size:16px;flex:1;color:var(--white);}
+  .arrow{color:var(--cyan);transition:transform .25s;font-size:13px;}
+  .chan.open .arrow{transform:rotate(90deg);}
+
+  .shows{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+  .chan.open .shows{max-height:600px;}
+  .show{
+    display:grid;grid-template-columns:58px 1fr;gap:10px;
+    padding:10px 12px;border-bottom:1px dotted var(--line);
+  }
+  .show:last-child{border-bottom:none;}
+  .time{color:var(--green);font-weight:600;font-size:14px;}
+  .show.now .time{color:var(--magenta);}
+  .title{font-size:15px;color:var(--white);}
+  .show.now .title::after{
+    content:" ● ORA";color:var(--magenta);font-size:11px;font-weight:600;letter-spacing:1px;
+  }
+  .genre{font-size:12px;color:var(--dim);margin-top:2px;}
+  .tag{
+    display:inline-block;font-size:10px;letter-spacing:1px;
+    border:1px solid var(--cyan);color:var(--cyan);
+    padding:0 4px;border-radius:2px;margin-top:4px;text-transform:uppercase;
+  }
+
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .filters button{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;
+    background:transparent;color:var(--dim);border:1px solid var(--line);
+    padding:6px 10px;cursor:pointer;border-radius:3px;transition:.15s;
+  }
+  .filters button.active,.filters button:hover{
+    color:var(--bg);background:var(--cyan);border-color:var(--cyan);
+  }
+
+  footer{
+    text-align:center;font-size:11px;color:var(--dim);
+    margin:20px 0 10px;line-height:1.6;
+  }
+  .bar{display:flex;height:6px;margin-top:14px;}
+  .bar span{flex:1;}
+  .bar :nth-child(1){background:var(--yellow);}
+  .bar :nth-child(2){background:var(--cyan);}
+  .bar :nth-child(3){background:var(--green);}
+  .bar :nth-child(4){background:var(--magenta);}
+  .bar :nth-child(5){background:var(--white);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">TELE<span>GUIDA</span></div>
+    <div class="subline">
+      <span class="pag" id="data-guida">P. 501 — PRIMA SERATA</span>
+      <span id="clock">--:--</span>
+    </div>
+    <div id="status" style="font-size:11px;color:var(--dim);margin-top:4px;">◌ in attesa…</div>
+    <div class="bar"><span></span><span></span><span></span><span></span><span></span></div>
+  </header>
+
+  <div class="band">▌ FASCIA 20:00 – 23:00 ▐</div>
+
+  <div class="filters" id="filters">
+    <button class="active" data-g="all">Tutti</button>
+    <button data-g="Film">Film</button>
+    <button data-g="Serie">Serie</button>
+    <button data-g="Intrattenimento">Show</button>
+    <button data-g="Informazione">Info</button>
+    <button data-g="Sport">Sport</button>
+  </div>
+
+  <div id="grid"></div>
+
+  <footer>
+    PALINSESTO RECUPERATO DAL WEB ALL'AVVIO (FONTE: HYLE.TV)<br>
+    SE LO SCRAPING FALLISCE SI USANO I DATI INTERNI<br>
+    <button id="refresh" style="margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:transparent;color:var(--cyan);border:1px solid var(--cyan);padding:6px 14px;cursor:pointer;border-radius:3px;">↻ AGGIORNA ORA</button>
+  </footer>
+</div>
+
+<script>
+/* ---- Palinsesto interno di FALLBACK · Sabato 30 maggio 2026 ----
+   Usato solo se lo scraping live fallisce.
+   Fonti: dituttounpop, libero, canaledieci, comingsoon, hyle (web) */
+let DATA_GUIDA = "Sabato 30 maggio 2026";
+const FALLBACK = [
+  { num:1, name:"Rai 1", shows:[
+    {t:"20:00", title:"Tg1", g:"Informazione"},
+    {t:"20:30", title:"Affari Tuoi", g:"Intrattenimento", tag:"Live"},
+    {t:"21:30", title:"Tutti i sogni ancora in volo (Massimo Ranieri)", g:"Intrattenimento", tag:"Show"},
+  ]},
+  { num:2, name:"Rai 2", shows:[
+    {t:"20:30", title:"Tg2", g:"Informazione"},
+    {t:"21:00", title:"Tg2 Post", g:"Informazione"},
+    {t:"21:20", title:"Omicidio a Les Saintes", g:"Film", tag:"Giallo"},
+  ]},
+  { num:3, name:"Rai 3", shows:[
+    {t:"20:00", title:"Blob", g:"Intrattenimento"},
+    {t:"20:30", title:"Tg Regione / Tg3", g:"Informazione"},
+    {t:"21:20", title:"Sapiens – Un solo pianeta (Mario Tozzi)", g:"Informazione", tag:"Cultura"},
+  ]},
+  { num:4, name:"Rete 4", shows:[
+    {t:"19:55", title:"La promessa", g:"Serie"},
+    {t:"20:30", title:"4 di sera news", g:"Informazione"},
+    {t:"21:30", title:"Continuavano a chiamarlo Trinità", g:"Film", tag:"Western"},
+  ]},
+  { num:5, name:"Canale 5", shows:[
+    {t:"20:00", title:"Tg5", g:"Informazione"},
+    {t:"20:40", title:"Striscia la Notizia", g:"Intrattenimento"},
+    {t:"21:30", title:"Gigi D'Alessio – Una notte a Napoli (Stadio Maradona)", g:"Intrattenimento", tag:"Musica"},
+  ]},
+  { num:6, name:"Italia 1", shows:[
+    {t:"20:30", title:"Spia per caso", g:"Film"},
+    {t:"22:30", title:"Film a seguire", g:"Film"},
+  ]},
+  { num:7, name:"LA7", shows:[
+    {t:"20:00", title:"Tg LA7", g:"Informazione"},
+    {t:"20:35", title:"In altre parole (Massimo Gramellini)", g:"Informazione", tag:"Talk"},
+  ]},
+  { num:8, name:"TV8", shows:[
+    {t:"20:30", title:"Pre-partita Champions", g:"Sport"},
+    {t:"21:00", title:"PSG – Arsenal · Finale Champions League", g:"Sport", tag:"Live"},
+  ]},
+  { num:20, name:"Canale 20", shows:[
+    {t:"20:15", title:"Spia per caso", g:"Film"},
+    {t:"21:05", title:"Transformers 4 – L'era dell'estinzione", g:"Film", tag:"Azione"},
+  ]},
+  { num:34, name:"Cine34", shows:[
+    {t:"21:00", title:"La moglie in vacanza... l'amante in città", g:"Film", tag:"Commedia"},
+    {t:"22:50", title:"Film a seguire", g:"Film"},
+  ]},
+  { num:9, name:"Nove", shows:[
+    {t:"20:15", title:"Don't Forget the Lyrics – Stai sul pezzo", g:"Intrattenimento", tag:"Game"},
+    {t:"21:30", title:"Film prima serata", g:"Film"},
+  ]},
+  { num:31, name:"Real Time", shows:[
+    {t:"20:20", title:"Cake Star – Pasticcerie in sfida", g:"Intrattenimento"},
+    {t:"21:30", title:"Matrimonio a prima vista Italia", g:"Intrattenimento", tag:"Reality"},
+  ]},
+  { num:33, name:"Food Network", shows:[
+    {t:"20:25", title:"Cucina con Buddy", g:"Intrattenimento", tag:"Cucina"},
+    {t:"21:20", title:"Cake Boss", g:"Intrattenimento"},
+  ]},
+  { num:52, name:"DMAX", shows:[
+    {t:"20:30", title:"Cose di questo mondo", g:"Informazione"},
+    {t:"21:45", title:"Real TV – Agenti in prima linea", g:"Intrattenimento", tag:"Prima TV"},
+  ]},
+  { num:56, name:"HGTV", shows:[
+    {t:"20:20", title:"Vendo casa in Italia", g:"Intrattenimento", tag:"Casa"},
+    {t:"21:25", title:"Cerco casa disperatamente", g:"Intrattenimento"},
+  ]},
+  { num:59, name:"Discovery Turbo", shows:[
+    {t:"21:15", title:"Affari a quattro ruote", g:"Intrattenimento", tag:"Motori"},
+    {t:"22:15", title:"Affari a quattro ruote Francia", g:"Intrattenimento"},
+  ]},
+];
+
+// Palinsesto attivo: parte dal fallback, viene sovrascritto dallo scraping live.
+let PALINSESTO = FALLBACK;
+
+// Canali da mostrare (numero DTT -> nome visualizzato). Discovery al posto di Sky.
+const CANALI_TARGET = [
+  [1,"Rai 1"],[2,"Rai 2"],[3,"Rai 3"],[4,"Rete 4"],[5,"Canale 5"],
+  [6,"Italia 1"],[7,"LA7"],[8,"TV8"],[9,"Nove"],[20,"20 Venti"],
+  [31,"Real Time"],[33,"Food Network"],[52,"DMAX"],[56,"HGTV"],[59,"Discovery Turbo"]
+];
+
+const grid = document.getElementById('grid');
+let activeGenre = "all";
+
+function toMin(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
+
+function render(){
+  grid.innerHTML = "";
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+
+  PALINSESTO.forEach((ch, i)=>{
+    const shows = activeGenre==="all" ? ch.shows : ch.shows.filter(s=>s.g===activeGenre);
+    if(shows.length===0) return;
+
+    const el = document.createElement('div');
+    el.className = 'chan' + (i<2 ? ' open' : '');
+    el.style.animationDelay = (i*0.05)+'s';
+
+    let rows = "";
+    ch.shows.forEach((s, idx)=>{
+      if(activeGenre!=="all" && s.g!==activeGenre) return;
+      const start = toMin(s.t);
+      const next = ch.shows[idx+1] ? toMin(ch.shows[idx+1].t) : start+90;
+      const isNow = nowMin>=start && nowMin<next && nowMin>=toMin("20:00") && nowMin<toMin("23:00");
+      rows += `
+        <div class="show ${isNow?'now':''}">
+          <div class="time">${s.t}</div>
+          <div>
+            <div class="title">${s.title}</div>
+            <div class="genre">${s.g}</div>
+            ${s.tag?`<span class="tag">${s.tag}</span>`:''}
+          </div>
+        </div>`;
+    });
+
+    el.innerHTML = `
+      <div class="chan-head">
+        <div class="num">${ch.num}</div>
+        <div class="chan-name">${ch.name}</div>
+        <div class="arrow">▶</div>
+      </div>
+      <div class="shows">${rows}</div>`;
+
+    el.querySelector('.chan-head').addEventListener('click', ()=> el.classList.toggle('open'));
+    grid.appendChild(el);
+  });
+}
+
+/* Filtri */
+document.getElementById('filters').addEventListener('click', e=>{
+  if(e.target.tagName!=='BUTTON') return;
+  document.querySelectorAll('#filters button').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  activeGenre = e.target.dataset.g;
+  render();
+});
+
+/* Orologio */
+function tick(){
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');
+}
+setInterval(tick,1000); tick();
+setInterval(render, 60000);
+render();
+document.getElementById('data-guida').textContent = "P.501 — " + DATA_GUIDA.toUpperCase();
+
+/* =========================================================
+   SCRAPING LIVE DEL PALINSESTO
+   Fonte: hyle.appspot.com (HTML pulito, aggiornato ogni giorno)
+   Strategia: provo più proxy CORS in cascata, faccio il parsing
+   dell'HTML, filtro fascia 20:00-23:00, fallback su dati interni.
+   ========================================================= */
+const FONTE = "https://hyle.appspot.com/palinsesto/serata";
+
+// Proxy CORS pubblici provati in ordine. Se uno fallisce, passo al successivo.
+const PROXIES = [
+  u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+  u => "https://corsproxy.io/?url=" + encodeURIComponent(u),
+  u => "https://thingproxy.freeboard.io/fetch/" + u,
+];
+
+function setStatus(txt, color){
+  const el = document.getElementById('status');
+  el.textContent = txt;
+  if(color) el.style.color = color;
+}
+
+// Classifica il genere a partire dal titolo del programma (euristica).
+function classifica(titolo){
+  const t = titolo.toLowerCase();
+  if(/\b(tg\d?|telegiornale|news|tg post|meteo|reporter|inchiest|dibattito|altre parole|omnibus|in onda|piazzapulita|propaganda|report)\b/.test(t)) return "Informazione";
+  if(/\b(champions|europa league|calcio|volley|pallavolo|tennis|motogp|formula|gp |sport|atp|wta|serie a|nba|ciclismo|basket)\b/.test(t)) return "Sport";
+  if(/\b(documentari|sapiens|ulisse|geo|superquark|passaggio|freedom|kilimangiaro|prossima fermata|x ?factor)\b/.test(t)) return "Informazione";
+  if(/\b(s\d+e\d+|stagione|episodio|ncis|fbi|squadra|commissario|dr\.?\s?house|csi|the\b|grey|chicago|911|law &|criminal)\b/.test(t)) return "Serie";
+  if(/\b(film|movie)\b/.test(t)) return "Film";
+  // Titoli "cinematografici" tipici della seconda serata: euristica leggera.
+  if(/\b(omicidio|impact|killer|marshals|beverly hills|trinit|sebastien|deep |paludi)\b/.test(t)) return "Film";
+  return "Intrattenimento";
+}
+
+// Estrae il palinsesto dall'HTML grezzo della fonte.
+// Approccio robusto: converto in testo e analizzo riga per riga, così
+// non dipendo dalla struttura esatta dei tag (che può cambiare).
+function parseHTML(html){
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  // Rimuovo script/style e prendo il testo, preservando i ritorni a capo
+  // inserendo \n ai confini dei blocchi principali.
+  doc.querySelectorAll("script,style,noscript").forEach(n=>n.remove());
+  let testo = "";
+  doc.querySelectorAll("h1,h2,h3,h4,li,p,div,tr,a,span,b,strong").forEach(n=>{
+    const t = n.textContent.replace(/\s+/g," ").trim();
+    if(t) testo += t + "\n";
+  });
+  const righe = testo.split("\n").map(r=>r.trim()).filter(Boolean);
+
+  const perCanale = {};
+  let numCorrente = null;
+
+  const reCanale = /^(\d{1,3})\s+(.+)$/;          // "1 Rai 1" / "52 DMAX"
+  const reShow   = /^(\d{1,2}[:.]\d{2})\s+(.+)$/;  // "20:35 Affari tuoi"
+  const targetNums = new Set(CANALI_TARGET.map(c=>c[0]));
+
+  righe.forEach(riga => {
+    const sc = riga.match(reShow);
+    if(sc && numCorrente !== null){
+      const ora = sc[1].replace(".", ":");
+      let titolo = sc[2]
+        .replace(/\s*-\s*Puntata del.*$/i,"")
+        .replace(/\s*-\s*\d{1,2}\/\d{1,2}\/\d{4}.*$/,"")
+        .replace(/\s*-\s*PrimaTv\b/i," (Prima TV)")
+        .trim();
+      if(titolo.length > 1){
+        (perCanale[numCorrente] ||= []).push({ t: ora, title: titolo, g: classifica(titolo) });
+      }
+      return;
+    }
+    const cc = riga.match(reCanale);
+    if(cc){
+      const n = parseInt(cc[1],10);
+      // Considero "intestazione canale" solo numeri plausibili di rete
+      // e che non siano già stati interpretati come orario.
+      if(n>=1 && n<=999 && targetNums.has(n)) numCorrente = n;
+      else if(n>=1 && n<=999) numCorrente = n; // tengo traccia comunque
+    }
+  });
+
+  // Costruisco l'output solo per i canali target, filtrando la fascia.
+  const out = [];
+  const visti = new Set();
+  CANALI_TARGET.forEach(([num, nome]) => {
+    const tutti = perCanale[num];
+    if(!tutti || visti.has(num)) return;
+    visti.add(num);
+    // Dedup per orario e ordino.
+    const uniq = [];
+    const seen = new Set();
+    tutti.forEach(s=>{ if(!seen.has(s.t)){ seen.add(s.t); uniq.push(s); } });
+    uniq.sort((a,b)=>toMin(a.t)-toMin(b.t));
+    const fascia = uniq.filter(s => {
+      const min = toMin(s.t);
+      return min >= toMin("19:45") && min < toMin("23:30");
+    });
+    if(fascia.length) out.push({ num, name: nome, shows: fascia });
+  });
+  return out;
+}
+
+async function caricaLive(){
+  setStatus("◌ recupero palinsesto dal web…", "var(--cyan)");
+  for(let i=0; i<PROXIES.length; i++){
+    try{
+      const url = PROXIES[i](FONTE);
+      const resp = await fetch(url, { cache: "no-store" });
+      if(!resp.ok) throw new Error("HTTP " + resp.status);
+      const html = await resp.text();
+      const dati = parseHTML(html);
+      if(dati.length >= 5){              // soglia minima di sanità
+        PALINSESTO = dati;
+        // Provo a leggere la data dichiarata nella pagina.
+        const md = html.match(/(luned|marted|mercoled|gioved|venerd|sabato|domenica)[^<\n]*\d{4}/i);
+        if(md) DATA_GUIDA = md[0].trim().replace(/\b\w/, c=>c.toUpperCase());
+        document.getElementById('data-guida').textContent = "P.501 — " + DATA_GUIDA.toUpperCase();
+        render();
+        setStatus("● LIVE · " + dati.length + " canali aggiornati", "var(--green)");
+        return;
+      }
+      throw new Error("parsing insufficiente");
+    }catch(err){
+      // provo il prossimo proxy
+      console.warn("Proxy", i, "fallito:", err.message);
+    }
+  }
+  // Tutti i proxy falliti -> resto sui dati interni.
+  setStatus("● OFFLINE · dati interni (scraping non riuscito)", "var(--magenta)");
+}
+
+// Avvio lo scraping all'apertura.
+caricaLive();
+document.getElementById('refresh').addEventListener('click', caricaLive);
+
+
+/* ---- Service Worker per PWA (cache offline) ---- */
+if('serviceWorker' in navigator){
+  const swCode = `
+    const C='teleguida-v1';
+    self.addEventListener('install',e=>{self.skipWaiting();});
+    self.addEventListener('activate',e=>{e.waitUntil(clients.claim());});
+    self.addEventListener('fetch',e=>{
+      e.respondWith(
+        caches.open(C).then(cache=>
+          cache.match(e.request).then(r=> r || fetch(e.request).then(resp=>{
+            if(e.request.method==='GET' && resp.ok){ cache.put(e.request, resp.clone()); }
+            return resp;
+          }).catch(()=>cache.match('./index.html')))
+        )
+      );
+    });`;
+  const blob = new Blob([swCode], {type:'text/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+</script>
+</body>
+</html>
