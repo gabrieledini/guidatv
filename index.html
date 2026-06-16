@@ -179,8 +179,8 @@
   <div id="grid"></div>
 
   <footer>
-    PALINSESTO RECUPERATO DAL WEB ALL'AVVIO (FONTE: HYLE.TV)<br>
-    SE LO SCRAPING FALLISCE SI USANO I DATI INTERNI<br>
+    PALINSESTO VIA NETLIFY FUNCTION (FONTE: HYLE.TV)<br>
+    FALLBACK: PROXY PUBBLICI · POI DATI INTERNI<br>
     <button id="refresh" style="margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:transparent;color:var(--cyan);border:1px solid var(--cyan);padding:6px 14px;cursor:pointer;border-radius:3px;">↻ AGGIORNA ORA</button>
   </footer>
 </div>
@@ -348,12 +348,34 @@ document.getElementById('data-guida').textContent = "P.501 — " + DATA_GUIDA.to
    ========================================================= */
 const FONTE = "https://hyle.appspot.com/palinsesto/serata";
 
-// Proxy CORS pubblici provati in ordine. Se uno fallisce, passo al successivo.
+// Sorgenti provate in cascata. La PRIMA è la nostra Netlify Function
+// (proxy dedicato, niente CORS): è quella che deve funzionare sempre.
+// Le altre sono proxy pubblici, tenuti solo come rete di sicurezza.
 const PROXIES = [
-  u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
-  u => "https://corsproxy.io/?url=" + encodeURIComponent(u),
-  u => "https://thingproxy.freeboard.io/fetch/" + u,
+  { nome:"netlify",
+    url: u => "/.netlify/functions/palinsesto",   // il server sa già cosa scaricare
+    estrai: async r => r.text() },
+  { nome:"codetabs",
+    url: u => "https://api.codetabs.com/v1/proxy/?quest=" + encodeURIComponent(u),
+    estrai: async r => r.text() },
+  { nome:"allorigins-raw",
+    url: u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+    estrai: async r => r.text() },
+  { nome:"allorigins-get",
+    url: u => "https://api.allorigins.win/get?url=" + encodeURIComponent(u),
+    estrai: async r => (await r.json()).contents },   // JSON: {contents:"..."}
+  { nome:"corsproxy",
+    url: u => "https://corsproxy.io/?url=" + encodeURIComponent(u),
+    estrai: async r => r.text() },
 ];
+
+// fetch con timeout: un proxy bloccato non deve congelare tutto.
+async function fetchTimeout(url, ms){
+  const ctrl = new AbortController();
+  const id = setTimeout(()=>ctrl.abort(), ms);
+  try{ return await fetch(url, { cache:"no-store", signal: ctrl.signal }); }
+  finally{ clearTimeout(id); }
+}
 
 function setStatus(txt, color){
   const el = document.getElementById('status');
@@ -443,31 +465,31 @@ function parseHTML(html){
 
 async function caricaLive(){
   setStatus("◌ recupero palinsesto dal web…", "var(--cyan)");
-  for(let i=0; i<PROXIES.length; i++){
+  for(const p of PROXIES){
     try{
-      const url = PROXIES[i](FONTE);
-      const resp = await fetch(url, { cache: "no-store" });
+      setStatus("◌ provo via " + p.nome + "…", "var(--cyan)");
+      const resp = await fetchTimeout(p.url(FONTE), 9000);
       if(!resp.ok) throw new Error("HTTP " + resp.status);
-      const html = await resp.text();
+      const html = await p.estrai(resp);
+      if(!html || html.length < 500) throw new Error("risposta vuota");
       const dati = parseHTML(html);
       if(dati.length >= 5){              // soglia minima di sanità
         PALINSESTO = dati;
-        // Provo a leggere la data dichiarata nella pagina.
         const md = html.match(/(luned|marted|mercoled|gioved|venerd|sabato|domenica)[^<\n]*\d{4}/i);
         if(md) DATA_GUIDA = md[0].trim().replace(/\b\w/, c=>c.toUpperCase());
         document.getElementById('data-guida').textContent = "P.501 — " + DATA_GUIDA.toUpperCase();
         render();
-        setStatus("● LIVE · " + dati.length + " canali aggiornati", "var(--green)");
+        setStatus("● LIVE · " + dati.length + " canali · via " + p.nome, "var(--green)");
         return;
       }
-      throw new Error("parsing insufficiente");
+      throw new Error("parsing insufficiente (" + dati.length + " canali)");
     }catch(err){
-      // provo il prossimo proxy
-      console.warn("Proxy", i, "fallito:", err.message);
+      console.warn("Proxy", p.nome, "fallito:", err.message);
     }
   }
   // Tutti i proxy falliti -> resto sui dati interni.
-  setStatus("● OFFLINE · dati interni (scraping non riuscito)", "var(--magenta)");
+  render();
+  setStatus("● OFFLINE · dati interni · tutti i proxy non raggiungibili", "var(--magenta)");
 }
 
 // Avvio lo scraping all'apertura.

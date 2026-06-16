@@ -1,0 +1,7 @@
+# Configurazione Netlify
+# - publish: la cartella che contiene index.html (la root del repo)
+# - functions: dove stanno le Netlify Functions
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
