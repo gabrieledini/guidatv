@@ -3,169 +3,198 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0a0a1a">
-<title>TELEGUIDA — Prima Serata</title>
+<meta name="theme-color" content="#0b0f17">
+<title>Teleguida — Prima Serata</title>
 
-<!-- PWA Manifest inline -->
-<link rel="manifest" href='data:application/manifest+json,{
-  "name": "Teleguida Prima Serata",
-  "short_name": "Teleguida",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#0a0a1a",
-  "theme_color": "#0a0a1a",
-  "orientation": "portrait",
-  "icons": [
-    { "src": "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22192%22 height=%22192%22%3E%3Crect width=%22192%22 height=%22192%22 fill=%22%230a0a1a%22/%3E%3Ctext x=%2296%22 y=%22120%22 font-size=%22110%22 text-anchor=%22middle%22 fill=%22%23ffd000%22 font-family=%22monospace%22 font-weight=%22bold%22%3ETV%3C/text%3E%3C/svg%3E", "sizes": "192x192", "type": "image/svg+xml" },
-    { "src": "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22512%22 height=%22512%22%3E%3Crect width=%22512%22 height=%22512%22 fill=%22%230a0a1a%22/%3E%3Ctext x=%22256%22 y=%22320%22 font-size=%22300%22 text-anchor=%22middle%22 fill=%22%23ffd000%22 font-family=%22monospace%22 font-weight=%22bold%22%3ETV%3C/text%3E%3C/svg%3E", "sizes": "512x512", "type": "image/svg+xml" }
-  ]
-}'>
+<!-- PWA: manifest + icone -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Teleguida">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --bg:#0a0a1a;
-    --panel:#10102a;
-    --line:#2a2a55;
-    --yellow:#ffd000;
-    --cyan:#00e0e0;
-    --green:#3ff03f;
-    --magenta:#ff4fd8;
-    --white:#e8e8ff;
-    --dim:#7a7ab0;
+    --bg:#0b0f17;
+    --bg2:#0e1420;
+    --card:#141b28;
+    --card2:#19212f;
+    --line:rgba(255,255,255,.07);
+    --line2:rgba(255,255,255,.12);
+    --txt:#e9edf5;
+    --dim:#8b97ad;
+    --dim2:#64718a;
+    --accent:#7c6cff;
+    --accent2:#a855f7;
+    --now:#ff4d7d;
+    /* colori per genere */
+    --g-Film:#a78bfa;
+    --g-Serie:#60a5fa;
+    --g-Intrattenimento:#fb923c;
+    --g-Informazione:#34d399;
+    --g-Sport:#4ade80;
   }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{background:var(--bg);}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html{color-scheme:dark;}
   body{
-    font-family:'IBM Plex Mono',monospace;
-    color:var(--white);
+    font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%,rgba(124,108,255,.18),transparent 60%),
+      var(--bg);
+    color:var(--txt);
     min-height:100vh;
-    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
-    overflow-x:hidden;
+    padding:env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 10px);
+    -webkit-font-smoothing:antialiased;
   }
-  /* CRT scanline + flicker overlay */
-  body::before{
-    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
-    background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.18) 3px,rgba(0,0,0,0) 4px);
-    mix-blend-mode:multiply;
+  .app{max-width:720px;margin:0 auto;padding:16px 14px 0;}
+
+  /* ---------- Header ---------- */
+  .top{margin-bottom:16px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .mark{
+    width:44px;height:44px;border-radius:13px;flex:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:grid;place-items:center;
+    box-shadow:0 8px 24px -8px rgba(124,108,255,.7);
   }
-  body::after{
-    content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;
-    background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.5) 100%);
+  .mark svg{width:22px;height:22px;fill:#fff;}
+  .brand h1{font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1;}
+  .brand .sub{font-size:12.5px;color:var(--dim);margin-top:3px;}
+  .clock{
+    margin-left:auto;font-variant-numeric:tabular-nums;font-weight:700;
+    font-size:15px;color:var(--txt);background:var(--card);
+    border:1px solid var(--line);border-radius:10px;padding:7px 11px;
+  }
+  .statusrow{display:flex;align-items:center;gap:8px;margin-top:12px;}
+  .status{
+    font-size:12px;color:var(--dim);display:inline-flex;align-items:center;gap:7px;
+    background:var(--card);border:1px solid var(--line);border-radius:999px;
+    padding:6px 12px;flex:1;min-width:0;
+  }
+  .status b{color:var(--txt);font-weight:600;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--dim2);flex:none;}
+  .dot.live{background:var(--g-Sport);box-shadow:0 0 0 4px rgba(74,222,128,.15);}
+  .dot.load{background:var(--accent);animation:pulse 1s infinite;}
+  .dot.off{background:var(--now);}
+  @keyframes pulse{50%{opacity:.35;}}
+  .iconbtn{
+    flex:none;width:36px;height:36px;border-radius:10px;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);color:var(--txt);
+    font-size:16px;display:grid;place-items:center;transition:.15s;
+  }
+  .iconbtn:active{transform:scale(.92);}
+  #install{
+    width:auto;padding:0 14px;font-weight:600;font-size:13px;gap:6px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;
+  }
+  #install[hidden]{display:none;}
+
+  /* ---------- Fascia ---------- */
+  .fascia{
+    display:flex;align-items:center;gap:10px;margin:18px 2px 12px;
+    font-size:13px;font-weight:600;color:var(--dim);
+  }
+  .fascia::before,.fascia::after{content:"";height:1px;background:var(--line);flex:1;}
+
+  /* ---------- Filtri ---------- */
+  .filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;}
+  .filters::-webkit-scrollbar{display:none;}
+  .filters button{
+    font-family:inherit;font-size:13px;font-weight:600;white-space:nowrap;
+    background:var(--card);color:var(--dim);border:1px solid var(--line);
+    padding:8px 14px;cursor:pointer;border-radius:999px;transition:.15s;flex:none;
+  }
+  .filters button.active{
+    color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    border-color:transparent;box-shadow:0 6px 18px -8px rgba(124,108,255,.8);
   }
 
-  .wrap{max-width:680px;margin:0 auto;padding:14px;}
-
-  header{
-    border:2px solid var(--cyan);
-    background:linear-gradient(180deg,#13133a,#0c0c24);
-    padding:12px 14px;
-    margin-bottom:14px;
-    position:relative;
-  }
-  .logo{
-    font-family:'VT323',monospace;
-    font-size:46px;line-height:.9;
-    color:var(--yellow);
-    text-shadow:0 0 8px rgba(255,208,0,.5);
-    letter-spacing:2px;
-  }
-  .logo span{color:var(--cyan);}
-  .subline{
-    display:flex;justify-content:space-between;align-items:center;
-    margin-top:6px;font-size:13px;color:var(--dim);flex-wrap:wrap;gap:6px;
-  }
-  .pag{color:var(--green);}
-  #clock{color:var(--magenta);font-weight:600;}
-
-  .band{
-    text-align:center;font-family:'VT323',monospace;font-size:24px;
-    color:var(--cyan);border-top:1px dashed var(--line);
-    border-bottom:1px dashed var(--line);padding:6px;margin:12px 0;
-    letter-spacing:3px;
-  }
-
+  /* ---------- Canali ---------- */
   .chan{
-    border:1px solid var(--line);
-    background:var(--panel);
-    margin-bottom:12px;
-    opacity:0;transform:translateY(8px);
-    animation:rise .4s ease forwards;
+    background:var(--card);border:1px solid var(--line);
+    border-radius:16px;margin-bottom:10px;overflow:hidden;
+    opacity:0;transform:translateY(10px);animation:rise .45s cubic-bezier(.2,.7,.3,1) forwards;
   }
   @keyframes rise{to{opacity:1;transform:none;}}
   .chan-head{
-    display:flex;align-items:center;gap:10px;
-    padding:8px 12px;background:#16163c;border-bottom:1px solid var(--line);
-    cursor:pointer;user-select:none;
+    display:flex;align-items:center;gap:12px;padding:13px 14px;
+    cursor:pointer;user-select:none;transition:background .15s;
   }
+  .chan-head:active{background:var(--card2);}
   .num{
-    font-family:'VT323',monospace;font-size:28px;color:var(--bg);
-    background:var(--yellow);min-width:38px;text-align:center;
-    border-radius:3px;line-height:1.1;padding:0 4px;
+    font-weight:800;font-size:15px;color:#fff;flex:none;
+    min-width:40px;height:34px;padding:0 8px;border-radius:9px;
+    display:grid;place-items:center;font-variant-numeric:tabular-nums;
+    background:linear-gradient(135deg,#232c3e,#1a2130);border:1px solid var(--line2);
   }
-  .chan-name{font-weight:600;font-size:16px;flex:1;color:var(--white);}
-  .arrow{color:var(--cyan);transition:transform .25s;font-size:13px;}
-  .chan.open .arrow{transform:rotate(90deg);}
+  .chan-name{font-weight:700;font-size:16px;flex:1;letter-spacing:-.01em;}
+  .peek{font-size:12px;color:var(--dim);font-weight:500;margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+  .chan-name-wrap{flex:1;min-width:0;}
+  .chev{color:var(--dim2);transition:transform .25s;flex:none;}
+  .chan.open .chev{transform:rotate(90deg);}
 
-  .shows{max-height:0;overflow:hidden;transition:max-height .35s ease;}
-  .chan.open .shows{max-height:600px;}
+  .shows{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease;}
+  .chan.open .shows{grid-template-rows:1fr;}
+  .shows-in{overflow:hidden;}
   .show{
-    display:grid;grid-template-columns:58px 1fr;gap:10px;
-    padding:10px 12px;border-bottom:1px dotted var(--line);
+    display:grid;grid-template-columns:52px 1fr;gap:12px;
+    padding:12px 14px;border-top:1px solid var(--line);position:relative;
   }
-  .show:last-child{border-bottom:none;}
-  .time{color:var(--green);font-weight:600;font-size:14px;}
-  .show.now .time{color:var(--magenta);}
-  .title{font-size:15px;color:var(--white);}
-  .show.now .title::after{
-    content:" ● ORA";color:var(--magenta);font-size:11px;font-weight:600;letter-spacing:1px;
+  .time{font-weight:700;font-size:14px;color:var(--dim);font-variant-numeric:tabular-nums;padding-top:1px;}
+  .show.now .time{color:var(--now);}
+  .title{font-size:15px;font-weight:600;line-height:1.3;letter-spacing:-.01em;}
+  .meta{display:flex;align-items:center;gap:7px;margin-top:6px;flex-wrap:wrap;}
+  .chip{
+    font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;
+    background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c);
+    border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
   }
-  .genre{font-size:12px;color:var(--dim);margin-top:2px;}
-  .tag{
-    display:inline-block;font-size:10px;letter-spacing:1px;
-    border:1px solid var(--cyan);color:var(--cyan);
-    padding:0 4px;border-radius:2px;margin-top:4px;text-transform:uppercase;
+  .tag{font-size:11px;font-weight:600;color:var(--dim);
+    background:var(--card2);border:1px solid var(--line);padding:2px 9px;border-radius:999px;}
+  .live-badge{
+    font-size:10.5px;font-weight:800;letter-spacing:.04em;color:#fff;
+    background:var(--now);padding:2px 8px;border-radius:999px;
+    display:inline-flex;align-items:center;gap:5px;
   }
+  .live-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1s infinite;}
+  .prog{height:3px;border-radius:3px;background:var(--line2);margin-top:9px;overflow:hidden;}
+  .prog span{display:block;height:100%;background:linear-gradient(90deg,var(--now),#ff85a8);border-radius:3px;}
 
-  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
-  .filters button{
-    font-family:'IBM Plex Mono',monospace;font-size:12px;
-    background:transparent;color:var(--dim);border:1px solid var(--line);
-    padding:6px 10px;cursor:pointer;border-radius:3px;transition:.15s;
-  }
-  .filters button.active,.filters button:hover{
-    color:var(--bg);background:var(--cyan);border-color:var(--cyan);
-  }
-
-  footer{
-    text-align:center;font-size:11px;color:var(--dim);
-    margin:20px 0 10px;line-height:1.6;
-  }
-  .bar{display:flex;height:6px;margin-top:14px;}
-  .bar span{flex:1;}
-  .bar :nth-child(1){background:var(--yellow);}
-  .bar :nth-child(2){background:var(--cyan);}
-  .bar :nth-child(3){background:var(--green);}
-  .bar :nth-child(4){background:var(--magenta);}
-  .bar :nth-child(5){background:var(--white);}
+  /* ---------- Footer ---------- */
+  footer{text-align:center;font-size:11.5px;color:var(--dim2);margin:22px 0 8px;line-height:1.7;}
+  footer a{color:var(--dim);}
+  .empty{text-align:center;color:var(--dim);padding:40px 0;font-size:14px;}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="app">
 
-  <header>
-    <div class="logo">TELE<span>GUIDA</span></div>
-    <div class="subline">
-      <span class="pag" id="data-guida">P. 501 — PRIMA SERATA</span>
-      <span id="clock">--:--</span>
+  <header class="top">
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-4v1h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2h2v-1H5a2 2 0 0 1-2-2V6Zm7 2.5v6l5-3-5-3Z"/></svg>
+      </div>
+      <div class="chan-name-wrap">
+        <h1>Teleguida</h1>
+        <div class="sub" id="data-guida">Prima serata</div>
+      </div>
+      <div class="clock" id="clock">--:--</div>
     </div>
-    <div id="status" style="font-size:11px;color:var(--dim);margin-top:4px;">◌ in attesa…</div>
-    <div class="bar"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="statusrow">
+      <span class="status" id="status"><span class="dot load"></span> avvio…</span>
+      <button class="iconbtn" id="install" hidden>⤓ Installa</button>
+      <button class="iconbtn" id="refresh" title="Aggiorna">↻</button>
+    </div>
   </header>
 
-  <div class="band">▌ FASCIA 20:00 – 23:00 ▐</div>
+  <div class="fascia">Prima serata · 20:00 – 23:00</div>
 
   <div class="filters" id="filters">
     <button class="active" data-g="all">Tutti</button>
@@ -179,181 +208,158 @@
   <div id="grid"></div>
 
   <footer>
-    PALINSESTO VIA NETLIFY FUNCTION (FONTE: HYLE.TV)<br>
-    FALLBACK: PROXY PUBBLICI · POI DATI INTERNI<br>
-    <button id="refresh" style="margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:transparent;color:var(--cyan);border:1px solid var(--cyan);padding:6px 14px;cursor:pointer;border-radius:3px;">↻ AGGIORNA ORA</button>
+    Dati da <a href="https://hyle.appspot.com" target="_blank" rel="noopener">Hyle TV</a> via Netlify Function.<br>
+    Aggiungi alla schermata Home per usarla come app.
   </footer>
 </div>
 
 <script>
-/* ---- Palinsesto interno di FALLBACK · Sabato 30 maggio 2026 ----
-   Usato solo se lo scraping live fallisce.
-   Fonti: dituttounpop, libero, canaledieci, comingsoon, hyle (web) */
-let DATA_GUIDA = "Sabato 30 maggio 2026";
+/* ---- Palinsesto interno di FALLBACK (usato solo se lo scraping fallisce) ---- */
+let DATA_GUIDA = "Prima serata";
 const FALLBACK = [
   { num:1, name:"Rai 1", shows:[
     {t:"20:00", title:"Tg1", g:"Informazione"},
-    {t:"20:30", title:"Affari Tuoi", g:"Intrattenimento", tag:"Live"},
-    {t:"21:30", title:"Tutti i sogni ancora in volo (Massimo Ranieri)", g:"Intrattenimento", tag:"Show"},
-  ]},
-  { num:2, name:"Rai 2", shows:[
-    {t:"20:30", title:"Tg2", g:"Informazione"},
-    {t:"21:00", title:"Tg2 Post", g:"Informazione"},
-    {t:"21:20", title:"Omicidio a Les Saintes", g:"Film", tag:"Giallo"},
-  ]},
-  { num:3, name:"Rai 3", shows:[
-    {t:"20:00", title:"Blob", g:"Intrattenimento"},
-    {t:"20:30", title:"Tg Regione / Tg3", g:"Informazione"},
-    {t:"21:20", title:"Sapiens – Un solo pianeta (Mario Tozzi)", g:"Informazione", tag:"Cultura"},
-  ]},
-  { num:4, name:"Rete 4", shows:[
-    {t:"19:55", title:"La promessa", g:"Serie"},
-    {t:"20:30", title:"4 di sera news", g:"Informazione"},
-    {t:"21:30", title:"Continuavano a chiamarlo Trinità", g:"Film", tag:"Western"},
+    {t:"20:30", title:"Affari Tuoi", g:"Intrattenimento"},
+    {t:"21:30", title:"Prima serata Rai 1", g:"Intrattenimento"},
   ]},
   { num:5, name:"Canale 5", shows:[
     {t:"20:00", title:"Tg5", g:"Informazione"},
     {t:"20:40", title:"Striscia la Notizia", g:"Intrattenimento"},
-    {t:"21:30", title:"Gigi D'Alessio – Una notte a Napoli (Stadio Maradona)", g:"Intrattenimento", tag:"Musica"},
-  ]},
-  { num:6, name:"Italia 1", shows:[
-    {t:"20:30", title:"Spia per caso", g:"Film"},
-    {t:"22:30", title:"Film a seguire", g:"Film"},
+    {t:"21:30", title:"Prima serata Canale 5", g:"Intrattenimento"},
   ]},
   { num:7, name:"LA7", shows:[
     {t:"20:00", title:"Tg LA7", g:"Informazione"},
-    {t:"20:35", title:"In altre parole (Massimo Gramellini)", g:"Informazione", tag:"Talk"},
-  ]},
-  { num:8, name:"TV8", shows:[
-    {t:"20:30", title:"Pre-partita Champions", g:"Sport"},
-    {t:"21:00", title:"PSG – Arsenal · Finale Champions League", g:"Sport", tag:"Live"},
-  ]},
-  { num:20, name:"Canale 20", shows:[
-    {t:"20:15", title:"Spia per caso", g:"Film"},
-    {t:"21:05", title:"Transformers 4 – L'era dell'estinzione", g:"Film", tag:"Azione"},
-  ]},
-  { num:34, name:"Cine34", shows:[
-    {t:"21:00", title:"La moglie in vacanza... l'amante in città", g:"Film", tag:"Commedia"},
-    {t:"22:50", title:"Film a seguire", g:"Film"},
-  ]},
-  { num:9, name:"Nove", shows:[
-    {t:"20:15", title:"Don't Forget the Lyrics – Stai sul pezzo", g:"Intrattenimento", tag:"Game"},
-    {t:"21:30", title:"Film prima serata", g:"Film"},
-  ]},
-  { num:31, name:"Real Time", shows:[
-    {t:"20:20", title:"Cake Star – Pasticcerie in sfida", g:"Intrattenimento"},
-    {t:"21:30", title:"Matrimonio a prima vista Italia", g:"Intrattenimento", tag:"Reality"},
-  ]},
-  { num:33, name:"Food Network", shows:[
-    {t:"20:25", title:"Cucina con Buddy", g:"Intrattenimento", tag:"Cucina"},
-    {t:"21:20", title:"Cake Boss", g:"Intrattenimento"},
-  ]},
-  { num:52, name:"DMAX", shows:[
-    {t:"20:30", title:"Cose di questo mondo", g:"Informazione"},
-    {t:"21:45", title:"Real TV – Agenti in prima linea", g:"Intrattenimento", tag:"Prima TV"},
-  ]},
-  { num:56, name:"HGTV", shows:[
-    {t:"20:20", title:"Vendo casa in Italia", g:"Intrattenimento", tag:"Casa"},
-    {t:"21:25", title:"Cerco casa disperatamente", g:"Intrattenimento"},
-  ]},
-  { num:59, name:"Discovery Turbo", shows:[
-    {t:"21:15", title:"Affari a quattro ruote", g:"Intrattenimento", tag:"Motori"},
-    {t:"22:15", title:"Affari a quattro ruote Francia", g:"Intrattenimento"},
+    {t:"20:35", title:"In altre parole", g:"Informazione"},
   ]},
 ];
 
 // Palinsesto attivo: parte dal fallback, viene sovrascritto dallo scraping live.
 let PALINSESTO = FALLBACK;
 
-// Canali da mostrare (numero DTT -> nome visualizzato). Discovery al posto di Sky.
+// Canali da mostrare (numero DTT -> nome). Generalisti + semigeneralisti + Discovery + ragazzi.
 const CANALI_TARGET = [
   [1,"Rai 1"],[2,"Rai 2"],[3,"Rai 3"],[4,"Rete 4"],[5,"Canale 5"],
-  [6,"Italia 1"],[7,"LA7"],[8,"TV8"],[9,"Nove"],[20,"20 Venti"],
-  [31,"Real Time"],[33,"Food Network"],[52,"DMAX"],[56,"HGTV"],[59,"Discovery Turbo"]
+  [6,"Italia 1"],[7,"LA7"],[8,"TV8"],[9,"Nove"],
+  [20,"20 Mediaset"],[21,"Rai 4"],[22,"Iris"],[23,"Rai 5"],[24,"Rai Movie"],
+  [25,"Rai Premium"],[26,"Cielo"],[27,"TwentySeven"],[29,"La7d"],[30,"La5"],
+  [31,"Real Time"],[33,"Food Network"],[34,"Cine34"],[35,"Focus"],[37,"Warner TV"],
+  [38,"Giallo"],[39,"Top Crime"],[40,"Boing"],[42,"Rai Gulp"],[43,"Rai YoYo"],[46,"Super!"],[47,"K2"],
+  [52,"DMAX"],[56,"HGTV"],[59,"Motor Trend"]
 ];
 
+const COLORI = {Film:"var(--g-Film)",Serie:"var(--g-Serie)",Intrattenimento:"var(--g-Intrattenimento)",Informazione:"var(--g-Informazione)",Sport:"var(--g-Sport)"};
 const grid = document.getElementById('grid');
 let activeGenre = "all";
 
 function toMin(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 function render(){
-  grid.innerHTML = "";
   const now = new Date();
   const nowMin = now.getHours()*60 + now.getMinutes();
+  let html = "";
+  let visibili = 0;
 
   PALINSESTO.forEach((ch, i)=>{
     const shows = activeGenre==="all" ? ch.shows : ch.shows.filter(s=>s.g===activeGenre);
     if(shows.length===0) return;
+    visibili++;
 
-    const el = document.createElement('div');
-    el.className = 'chan' + (i<2 ? ' open' : '');
-    el.style.animationDelay = (i*0.05)+'s';
+    // Trova il programma in onda per l'anteprima nell'intestazione.
+    let onAir = null;
+    ch.shows.forEach((s,idx)=>{
+      const start=toMin(s.t), next=ch.shows[idx+1]?toMin(ch.shows[idx+1].t):start+120;
+      if(nowMin>=start && nowMin<next) onAir=s;
+    });
 
     let rows = "";
-    ch.shows.forEach((s, idx)=>{
-      if(activeGenre!=="all" && s.g!==activeGenre) return;
-      const start = toMin(s.t);
-      const next = ch.shows[idx+1] ? toMin(ch.shows[idx+1].t) : start+90;
-      const isNow = nowMin>=start && nowMin<next && nowMin>=toMin("20:00") && nowMin<toMin("23:00");
+    shows.forEach(s=>{
+      const idx = ch.shows.indexOf(s);
+      const start=toMin(s.t), next=ch.shows[idx+1]?toMin(ch.shows[idx+1].t):start+120;
+      const isNow = nowMin>=start && nowMin<next;
+      const col = COLORI[s.g]||"var(--dim)";
+      let prog = "";
+      if(isNow){
+        const pct = Math.max(2,Math.min(100,Math.round((nowMin-start)/(next-start)*100)));
+        prog = `<div class="prog"><span style="width:${pct}%"></span></div>`;
+      }
       rows += `
         <div class="show ${isNow?'now':''}">
           <div class="time">${s.t}</div>
           <div>
-            <div class="title">${s.title}</div>
-            <div class="genre">${s.g}</div>
-            ${s.tag?`<span class="tag">${s.tag}</span>`:''}
+            <div class="title">${esc(s.title)}</div>
+            <div class="meta">
+              ${isNow?'<span class="live-badge">ORA</span>':''}
+              <span class="chip" style="--c:${col}">${s.g}</span>
+              ${s.tag?`<span class="tag">${esc(s.tag)}</span>`:''}
+            </div>
+            ${prog}
           </div>
         </div>`;
     });
 
-    el.innerHTML = `
-      <div class="chan-head">
-        <div class="num">${ch.num}</div>
-        <div class="chan-name">${ch.name}</div>
-        <div class="arrow">▶</div>
-      </div>
-      <div class="shows">${rows}</div>`;
+    const peek = onAir ? `▶ ${esc(onAir.title)}` : (shows[0]?esc(shows[0].title):"");
+    html += `
+      <div class="chan" style="animation-delay:${Math.min(i*.04,.5)}s">
+        <div class="chan-head" data-i="${i}">
+          <div class="num">${ch.num}</div>
+          <div class="chan-name-wrap">
+            <div class="chan-name">${esc(ch.name)}</div>
+            <div class="peek">${peek}</div>
+          </div>
+          <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+        </div>
+        <div class="shows"><div class="shows-in">${rows}</div></div>
+      </div>`;
+  });
 
-    el.querySelector('.chan-head').addEventListener('click', ()=> el.classList.toggle('open'));
-    grid.appendChild(el);
+  grid.innerHTML = visibili ? html : '<div class="empty">Nessun programma per questo filtro.</div>';
+
+  // Apri i primi due canali di default.
+  const cards=[...grid.querySelectorAll('.chan')];
+  cards.forEach((c,idx)=>{ if(idx<2) c.classList.add('open'); });
+  cards.forEach(c=>{
+    c.querySelector('.chan-head').addEventListener('click',()=>c.classList.toggle('open'));
   });
 }
 
 /* Filtri */
 document.getElementById('filters').addEventListener('click', e=>{
-  if(e.target.tagName!=='BUTTON') return;
-  document.querySelectorAll('#filters button').forEach(b=>b.classList.remove('active'));
-  e.target.classList.add('active');
-  activeGenre = e.target.dataset.g;
+  const b=e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#filters button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  activeGenre=b.dataset.g;
   render();
 });
 
 /* Orologio */
 function tick(){
-  const n = new Date();
-  document.getElementById('clock').textContent =
-    String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
 }
 setInterval(tick,1000); tick();
-setInterval(render, 60000);
+setInterval(render,60000);
 render();
-document.getElementById('data-guida').textContent = "P.501 — " + DATA_GUIDA.toUpperCase();
+
+/* ---- Stato ---- */
+function setStatus(txt, stato){ // stato: load | live | off
+  document.getElementById('status').innerHTML =
+    `<span class="dot ${stato||''}"></span> ${txt}`;
+}
+function setData(){
+  document.getElementById('data-guida').textContent = DATA_GUIDA;
+}
+setData();
 
 /* =========================================================
-   SCRAPING LIVE DEL PALINSESTO
-   Fonte: hyle.appspot.com (HTML pulito, aggiornato ogni giorno)
-   Strategia: provo più proxy CORS in cascata, faccio il parsing
-   dell'HTML, filtro fascia 20:00-23:00, fallback su dati interni.
+   RECUPERO LIVE DEL PALINSESTO
+   Fonte: hyle.appspot.com — prima via Netlify Function, poi proxy pubblici.
    ========================================================= */
 const FONTE = "https://hyle.appspot.com/palinsesto/serata";
-
-// Sorgenti provate in cascata. La PRIMA è la nostra Netlify Function
-// (proxy dedicato, niente CORS): è quella che deve funzionare sempre.
-// Le altre sono proxy pubblici, tenuti solo come rete di sicurezza.
 const PROXIES = [
   { nome:"netlify",
-    url: u => "/.netlify/functions/palinsesto",   // il server sa già cosa scaricare
+    url: u => "/.netlify/functions/palinsesto",
     estrai: async r => r.text() },
   { nome:"codetabs",
     url: u => "https://api.codetabs.com/v1/proxy/?quest=" + encodeURIComponent(u),
@@ -363,157 +369,136 @@ const PROXIES = [
     estrai: async r => r.text() },
   { nome:"allorigins-get",
     url: u => "https://api.allorigins.win/get?url=" + encodeURIComponent(u),
-    estrai: async r => (await r.json()).contents },   // JSON: {contents:"..."}
+    estrai: async r => (await r.json()).contents },
   { nome:"corsproxy",
     url: u => "https://corsproxy.io/?url=" + encodeURIComponent(u),
     estrai: async r => r.text() },
 ];
 
-// fetch con timeout: un proxy bloccato non deve congelare tutto.
 async function fetchTimeout(url, ms){
-  const ctrl = new AbortController();
-  const id = setTimeout(()=>ctrl.abort(), ms);
-  try{ return await fetch(url, { cache:"no-store", signal: ctrl.signal }); }
+  const ctrl=new AbortController();
+  const id=setTimeout(()=>ctrl.abort(),ms);
+  try{ return await fetch(url,{cache:"no-store",signal:ctrl.signal}); }
   finally{ clearTimeout(id); }
 }
 
-function setStatus(txt, color){
-  const el = document.getElementById('status');
-  el.textContent = txt;
-  if(color) el.style.color = color;
-}
-
-// Classifica il genere a partire dal titolo del programma (euristica).
 function classifica(titolo){
-  const t = titolo.toLowerCase();
+  const t=titolo.toLowerCase();
   if(/\b(tg\d?|telegiornale|news|tg post|meteo|reporter|inchiest|dibattito|altre parole|omnibus|in onda|piazzapulita|propaganda|report)\b/.test(t)) return "Informazione";
   if(/\b(champions|europa league|calcio|volley|pallavolo|tennis|motogp|formula|gp |sport|atp|wta|serie a|nba|ciclismo|basket)\b/.test(t)) return "Sport";
   if(/\b(documentari|sapiens|ulisse|geo|superquark|passaggio|freedom|kilimangiaro|prossima fermata|x ?factor)\b/.test(t)) return "Informazione";
   if(/\b(s\d+e\d+|stagione|episodio|ncis|fbi|squadra|commissario|dr\.?\s?house|csi|the\b|grey|chicago|911|law &|criminal)\b/.test(t)) return "Serie";
   if(/\b(film|movie)\b/.test(t)) return "Film";
-  // Titoli "cinematografici" tipici della seconda serata: euristica leggera.
   if(/\b(omicidio|impact|killer|marshals|beverly hills|trinit|sebastien|deep |paludi)\b/.test(t)) return "Film";
   return "Intrattenimento";
 }
 
-// Estrae il palinsesto dall'HTML grezzo della fonte.
-// Approccio robusto: converto in testo e analizzo riga per riga, così
-// non dipendo dalla struttura esatta dei tag (che può cambiare).
 function parseHTML(html){
-  const doc = new DOMParser().parseFromString(html, "text/html");
-  // Rimuovo script/style e prendo il testo, preservando i ritorni a capo
-  // inserendo \n ai confini dei blocchi principali.
+  const doc=new DOMParser().parseFromString(html,"text/html");
   doc.querySelectorAll("script,style,noscript").forEach(n=>n.remove());
-  let testo = "";
+  let testo="";
   doc.querySelectorAll("h1,h2,h3,h4,li,p,div,tr,a,span,b,strong").forEach(n=>{
-    const t = n.textContent.replace(/\s+/g," ").trim();
-    if(t) testo += t + "\n";
+    const t=n.textContent.replace(/\s+/g," ").trim();
+    if(t) testo+=t+"\n";
   });
-  const righe = testo.split("\n").map(r=>r.trim()).filter(Boolean);
+  const righe=testo.split("\n").map(r=>r.trim()).filter(Boolean);
 
-  const perCanale = {};
-  let numCorrente = null;
+  const perCanale={};
+  let numCorrente=null;
+  const reCanale=/^(\d{1,3})\s+(.+)$/;
+  const reShow=/^(\d{1,2}[:.]\d{2})\s+(.+)$/;
 
-  const reCanale = /^(\d{1,3})\s+(.+)$/;          // "1 Rai 1" / "52 DMAX"
-  const reShow   = /^(\d{1,2}[:.]\d{2})\s+(.+)$/;  // "20:35 Affari tuoi"
-  const targetNums = new Set(CANALI_TARGET.map(c=>c[0]));
-
-  righe.forEach(riga => {
-    const sc = riga.match(reShow);
-    if(sc && numCorrente !== null){
-      const ora = sc[1].replace(".", ":");
-      let titolo = sc[2]
+  righe.forEach(riga=>{
+    const sc=riga.match(reShow);
+    if(sc && numCorrente!==null){
+      const ora=sc[1].replace(".",":");
+      let titolo=sc[2]
         .replace(/\s*-\s*Puntata del.*$/i,"")
         .replace(/\s*-\s*\d{1,2}\/\d{1,2}\/\d{4}.*$/,"")
         .replace(/\s*-\s*PrimaTv\b/i," (Prima TV)")
         .trim();
-      if(titolo.length > 1){
-        (perCanale[numCorrente] ||= []).push({ t: ora, title: titolo, g: classifica(titolo) });
-      }
+      if(titolo.length>1)(perCanale[numCorrente] ||= []).push({t:ora,title:titolo,g:classifica(titolo)});
       return;
     }
-    const cc = riga.match(reCanale);
-    if(cc){
-      const n = parseInt(cc[1],10);
-      // Considero "intestazione canale" solo numeri plausibili di rete
-      // e che non siano già stati interpretati come orario.
-      if(n>=1 && n<=999 && targetNums.has(n)) numCorrente = n;
-      else if(n>=1 && n<=999) numCorrente = n; // tengo traccia comunque
-    }
+    const cc=riga.match(reCanale);
+    if(cc){ const n=parseInt(cc[1],10); if(n>=1&&n<=999) numCorrente=n; }
   });
 
-  // Costruisco l'output solo per i canali target, filtrando la fascia.
-  const out = [];
-  const visti = new Set();
-  CANALI_TARGET.forEach(([num, nome]) => {
-    const tutti = perCanale[num];
-    if(!tutti || visti.has(num)) return;
-    visti.add(num);
-    // Dedup per orario e ordino.
-    const uniq = [];
-    const seen = new Set();
+  const out=[];
+  CANALI_TARGET.forEach(([num,nome])=>{
+    const tutti=perCanale[num];
+    if(!tutti) return;
+    const uniq=[]; const seen=new Set();
     tutti.forEach(s=>{ if(!seen.has(s.t)){ seen.add(s.t); uniq.push(s); } });
     uniq.sort((a,b)=>toMin(a.t)-toMin(b.t));
-    const fascia = uniq.filter(s => {
-      const min = toMin(s.t);
-      return min >= toMin("19:45") && min < toMin("23:30");
-    });
-    if(fascia.length) out.push({ num, name: nome, shows: fascia });
+    const fascia=uniq.filter(s=>{ const m=toMin(s.t); return m>=toMin("19:45")&&m<toMin("23:30"); });
+    if(fascia.length) out.push({num,name:nome,shows:fascia});
   });
   return out;
 }
 
 async function caricaLive(){
-  setStatus("◌ recupero palinsesto dal web…", "var(--cyan)");
+  setStatus("recupero palinsesto…","load");
   for(const p of PROXIES){
     try{
-      setStatus("◌ provo via " + p.nome + "…", "var(--cyan)");
-      const resp = await fetchTimeout(p.url(FONTE), 9000);
-      if(!resp.ok) throw new Error("HTTP " + resp.status);
-      const html = await p.estrai(resp);
-      if(!html || html.length < 500) throw new Error("risposta vuota");
-      const dati = parseHTML(html);
-      if(dati.length >= 5){              // soglia minima di sanità
-        PALINSESTO = dati;
-        const md = html.match(/(luned|marted|mercoled|gioved|venerd|sabato|domenica)[^<\n]*\d{4}/i);
-        if(md) DATA_GUIDA = md[0].trim().replace(/\b\w/, c=>c.toUpperCase());
-        document.getElementById('data-guida').textContent = "P.501 — " + DATA_GUIDA.toUpperCase();
+      const resp=await fetchTimeout(p.url(FONTE),9000);
+      if(!resp.ok) throw new Error("HTTP "+resp.status);
+      const html=await p.estrai(resp);
+      if(!html||html.length<500) throw new Error("vuota");
+      const dati=parseHTML(html);
+      if(dati.length>=5){
+        PALINSESTO=dati;
+        const md=html.match(/(luned|marted|mercoled|gioved|venerd|sabato|domenica)[^<\n]*\d{4}/i);
+        if(md){ DATA_GUIDA=md[0].trim().replace(/\b\w/,c=>c.toUpperCase()); setData(); }
         render();
-        setStatus("● LIVE · " + dati.length + " canali · via " + p.nome, "var(--green)");
+        setStatus(`<b>${dati.length} canali</b> · aggiornato`,"live");
         return;
       }
-      throw new Error("parsing insufficiente (" + dati.length + " canali)");
-    }catch(err){
-      console.warn("Proxy", p.nome, "fallito:", err.message);
-    }
+      throw new Error("parsing "+dati.length);
+    }catch(err){ console.warn("proxy",p.nome,err.message); }
   }
-  // Tutti i proxy falliti -> resto sui dati interni.
   render();
-  setStatus("● OFFLINE · dati interni · tutti i proxy non raggiungibili", "var(--magenta)");
+  setStatus("non raggiungibile · dati base","off");
 }
-
-// Avvio lo scraping all'apertura.
 caricaLive();
-document.getElementById('refresh').addEventListener('click', caricaLive);
+document.getElementById('refresh').addEventListener('click',caricaLive);
 
+/* ---- Installazione PWA ---- */
+let deferredPrompt=null;
+const btnInstall=document.getElementById('install');
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredPrompt=e; btnInstall.hidden=false;
+});
+btnInstall.addEventListener('click',async()=>{
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null; btnInstall.hidden=true;
+});
+window.addEventListener('appinstalled',()=>{ btnInstall.hidden=true; });
 
-/* ---- Service Worker per PWA (cache offline) ---- */
+/* ---- Service Worker ---- */
 if('serviceWorker' in navigator){
-  const swCode = `
-    const C='teleguida-v1';
-    self.addEventListener('install',e=>{self.skipWaiting();});
-    self.addEventListener('activate',e=>{e.waitUntil(clients.claim());});
+  const swCode=`
+    const C='teleguida-v2';
+    const PRE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable.png','./apple-touch-icon.png'];
+    self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(PRE).catch(()=>{})));});
+    self.addEventListener('activate',e=>{e.waitUntil(Promise.all([
+      caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))),
+      clients.claim()
+    ]));});
     self.addEventListener('fetch',e=>{
+      if(e.request.method!=='GET') return;
       e.respondWith(
         caches.open(C).then(cache=>
           cache.match(e.request).then(r=> r || fetch(e.request).then(resp=>{
-            if(e.request.method==='GET' && resp.ok){ cache.put(e.request, resp.clone()); }
+            if(resp.ok) cache.put(e.request,resp.clone());
             return resp;
           }).catch(()=>cache.match('./index.html')))
         )
       );
     });`;
-  const blob = new Blob([swCode], {type:'text/javascript'});
+  const blob=new Blob([swCode],{type:'text/javascript'});
   navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
 }
 </script>
